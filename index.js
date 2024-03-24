@@ -39,6 +39,7 @@ io.on('connect', (socket) => {
 
     socket.on('userPresent', function (data) {
         players.add(data)
+        console.log(data)
         setInterval(function () {
             socket.emit('currentPlayers', JSON.stringify(Array.from(players)));
         }, 3000);
