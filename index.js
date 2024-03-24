@@ -12,10 +12,12 @@ const io = new Server(server, {
 
 const players = new Set()
 
-const questions = []
+var questions = []
 
-const responses = []
+var scores = new Set()
+var updated = []
 
+let curQuestionIndex = 0
 
 app.get('/', (req, res) => {
 //   const user = req.query.user;
@@ -27,25 +29,34 @@ app.get('/', (req, res) => {
 io.on('connect', (socket) => {
     //console.log('connected!')
     socket.on('questions', function (data) {
-        questions.clear()
+        questions = []
         const question_list = JSON.parse(data)
         question_list.forEach((question) => {
             questions.push(question)
         })
         console.log(questions)
     })
-    
+
     socket.on('userPresent', function (data) {
         players.add(data)
-        console.log(data)
-        console.log('success')
         setInterval(function () {
-            console.log('---')
-            console.log(JSON.stringify(Array.from(players)).toString())
-            console.log('---')
             socket.emit('currentPlayers', JSON.stringify(Array.from(players)));
         }, 3000);
+        scores = new Map()
+        for (const data of players) {
+            scores.set(data, 0)
+        }
     });
+
+    socket.on('curAnswer', function (data) {
+        const curAnswer = JSON.parse(data)
+        q_index = curAnswer[0]
+        points = curAnswer[1]
+        user = curAnswer[2]
+        let prev = scores.get(user)
+        scores.set(user, prev+Number(points))
+        console.log(scores)
+    })
 });
 
 // io.on('connection', unction (socket) {
