@@ -19,6 +19,8 @@ var updated = []
 
 let curQuestionIndex = 0
 
+let playerDataInterval;
+
 app.get('/', (req, res) => {
 //   const user = req.query.user;
 //   players.add(user)
@@ -27,7 +29,7 @@ app.get('/', (req, res) => {
 });
 
 io.on('connect', (socket) => {
-    //console.log('connected!')
+    console.log('connected!')
     socket.on('questions', function (data) {
         questions = []
         const question_list = JSON.parse(data)
@@ -40,9 +42,14 @@ io.on('connect', (socket) => {
     socket.on('userPresent', function (data) {
         players.add(data)
         console.log(data)
-        setInterval(function () {
-            socket.emit('currentPlayers', JSON.stringify(Array.from(players)));
-        }, 3000);
+        console.log('email received')
+        // if (playerDataInterval) {
+        //     clearInterval(playerDataInterval);
+        // }
+        // playerDataInterval = setInterval(function () {
+            console.log('sending player data')
+            io.sockets.emit('currentPlayers', JSON.stringify(Array.from(players)));
+        // }, 3000);
         scores = new Map()
         for (const data of players) {
             scores.set(data, 0)
@@ -57,6 +64,16 @@ io.on('connect', (socket) => {
         let prev = scores.get(user)
         scores.set(user, prev+Number(points))
         console.log(scores)
+    })
+
+    socket.on('startGameNow', function (data) {
+        io.sockets.emit('startGame', `game started by ${data.toString()}`)
+    })
+
+    socket.on('disconnect', () => {
+        console.log('disconnected')
+        // clearInterval(playerDataInterval);
+        // playerDataInterval = null;
     })
 });
 
