@@ -66,8 +66,25 @@ io.on('connect', (socket) => {
         console.log(scores)
     })
 
+    socket.on('addScore', function (data) {
+        const score = JSON.parse(data)
+        const scoreToAdd = (data[1] !== null && data[1] !== undefined) ? Number(data[1]) : 0;
+        scores.set(data[0], scores.get(data[0]) + scoreToAdd)
+        console.log(score)
+    })
+
     socket.on('startGameNow', function (data) {
         io.sockets.emit('startGame', `game started by ${data.toString()}`)
+    })
+
+    socket.on('startNextRound', function (data) {
+        io.sockets.emit('startNextRoundNow', data)
+    })
+
+    socket.on('getPlayerScores', function () {
+        console.log('printing json formatted')
+        console.log(JSON.stringify(scores).toString())
+        io.sockets.emit('givingPlayerScore', JSON.stringify(scores).toString())
     })
 
     socket.on('disconnect', () => {
