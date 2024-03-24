@@ -14,7 +14,7 @@ const players = new Set()
 
 var questions = []
 
-var scores = new Set()
+var scores = new Map()
 var updated = []
 
 let curQuestionIndex = 0
