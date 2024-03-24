@@ -10,26 +10,45 @@ const io = new Server(server, {
     }
 });
 
-const players = []
-const responses = new Map()
+const players = new Set()
+
+const questions = []
+
+const responses = []
+
 
 app.get('/', (req, res) => {
-  const user = req.query.user;
-  players.push(user)
-  console.log(user)
-  res.send(`Hello, ${user}! Welcome to the homepage.`);
+//   const user = req.query.user;
+//   players.add(user)
+//   console.log(user)
+  res.send(`Hello! Welcome to the homepage.`);
 });
 
 io.on('connect', (socket) => {
     //console.log('connected!')
+    socket.on('questions', function (data) {
+        questions.clear()
+        const question_list = JSON.parse(data)
+        question_list.forEach((question) => {
+            questions.push(question)
+        })
+        console.log(questions)
+    })
+    
     socket.on('userPresent', function (data) {
-        players.push(data)
+        players.add(data)
         console.log(data)
         console.log('success')
+        setInterval(function () {
+            console.log('---')
+            console.log(JSON.stringify(Array.from(players)).toString())
+            console.log('---')
+            socket.emit('currentPlayers', JSON.stringify(Array.from(players)));
+        }, 3000);
     });
 });
 
-// io.on('connection', function (socket) {
+// io.on('connection', unction (socket) {
 //     console.log('connected:', socket.client.id);
 //     socket.on('serverEvent', function (data) {
 //         console.log('new message from client:', data);
